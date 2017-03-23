@@ -202,6 +202,9 @@ public class NitfRenderer {
     private int[] getSourceBands(final ImageSegment imageSegment) {
         List<Integer> imageBands = new ArrayList<Integer>();
 
+        /* When bands are marked as LU, R, G, B, and M are present
+        the RGB designated bands are the default bands for display
+         */
         for (int i = 0; i < imageSegment.getNumBands(); i++) {
             ImageBand band = imageSegment.getImageBandZeroBase(i);
 
@@ -214,6 +217,44 @@ public class NitfRenderer {
                     break;
                 default:
                     break;
+                }
+            }
+        }
+
+        /* If R, G, B are not present, the default displayable band
+        is the LU band
+         */
+        if (imageBands.isEmpty()) {
+            for (int i = 0; i < imageSegment.getNumBands(); i++) {
+                ImageBand band = imageSegment.getImageBandZeroBase(i);
+
+                if (null != band.getImageRepresentation()) {
+                    switch (band.getImageRepresentation()) {
+                    case "LU":
+                        imageBands.add(i);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+        }
+
+        /* If the R, G, B, or LU bands are not present, the default
+        displayable band is the first M band
+         */
+        if (imageBands.isEmpty()) {
+            for (int i = 0; i < imageSegment.getNumBands(); i++) {
+                ImageBand band = imageSegment.getImageBandZeroBase(i);
+
+                if (null != band.getImageRepresentation()) {
+                    switch (band.getImageRepresentation()) {
+                    case "M":
+                        imageBands.add(i);
+                        break;
+                    default:
+                        break;
+                    }
                 }
             }
         }
